@@ -35,6 +35,10 @@
 
 @property (weak,    nonatomic) UIViewController     *vc;
 
+@property (nonatomic,    copy) NSString *firstTitle;
+@property (nonatomic,    copy) NSString *secondTitle;
+@property (nonatomic,    copy) NSString *cancelTitle;
+
 @end
 
 @implementation JHPhotoChangeManager
@@ -72,6 +76,13 @@
     [self jhOpenLocalPhoto];
 }
 
+- (void)showInVC:(UIViewController *)vc firstTitle:(NSString *)firstTitle secondTitle:(NSString *)secondTitle cancelTitle:(NSString *)cancelTitle image:(JHChooseCallback)callback{
+    _firstTitle = firstTitle;
+    _secondTitle = secondTitle;
+    _cancelTitle = cancelTitle;
+    [self showInVC:vc image:callback];
+}
+
 - (void)showInVC:(UIViewController *)vc image:(JHChooseCallback)callback{
     
     //保存block
@@ -80,13 +91,13 @@
     
     UIAlertController *sheet = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
     
-    UIAlertAction *action1 = [UIAlertAction actionWithTitle:@"拍照" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+    UIAlertAction *action1 = [UIAlertAction actionWithTitle:_firstTitle?:@"拍照" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         [self jhTakePhoto];
     }];
-    UIAlertAction *action2 = [UIAlertAction actionWithTitle:@"相册" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+    UIAlertAction *action2 = [UIAlertAction actionWithTitle:_secondTitle?:@"相册" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         [self jhOpenLocalPhoto];
     }];
-    UIAlertAction *action3 = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+    UIAlertAction *action3 = [UIAlertAction actionWithTitle:_cancelTitle?:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
         
     }];
     
