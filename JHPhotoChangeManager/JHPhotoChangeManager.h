@@ -57,7 +57,15 @@ typedef void(^JHChooseCallback)(UIImage *editImage, UIImage *originalImage);
 
 + (instancetype)manager;
 
+/**
+ default is:
+ 
+        拍照
+        相册
+        取消
+ */
 - (void)showInVC:(UIViewController *)vc image:(JHChooseCallback)callback;
+- (void)showInVC:(UIViewController *)vc firstTitle:(NSString *)firstTitle secondTitle:(NSString *)secondTitle cancelTitle:(NSString *)cancelTitle image:(JHChooseCallback)callback;
 
 - (void)takePhoto;
 - (void)openLocalPhoto;
