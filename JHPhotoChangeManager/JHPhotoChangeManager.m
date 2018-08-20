@@ -29,6 +29,10 @@
 
 #import "JHPhotoChangeManager.h"
 
+// Camera
+#import <AVFoundation/AVCaptureDevice.h>
+#import <AVFoundation/AVMediaFormat.h>
+
 @interface JHPhotoChangeManager()<UINavigationControllerDelegate, UIImagePickerControllerDelegate>
 
 @property (copy,    nonatomic) JHChooseCallback callback;
@@ -119,19 +123,43 @@
 
 - (void)jhTakePhoto
 {
-    if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera])
-    {
-        UIImagePickerController *picker = [[UIImagePickerController alloc] init];
-        picker.delegate = self;
-        //设置拍照后的图片可被编辑
-        picker.allowsEditing = YES;
-        picker.sourceType = UIImagePickerControllerSourceTypeCamera;
+    AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+    if (status == AVAuthorizationStatusDenied || // 用户拒绝App使用
+        status == AVAuthorizationStatusRestricted // 未授权，且用户无法更新，如家长控制情况下
+        ) {
         
-        [_vc presentViewController:picker animated:YES completion:nil];
-    }else{
-        NSLog(@"模拟器中无法打开照相机,请在真机中使用");
+        NSString *title = @"提示";
+        NSString *message = @"请您设置允许APP访问您的相机:设置->隐私->相机";
+        if ([[UIDevice currentDevice] systemVersion].floatValue >= 8.0) {
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:1];
+            UIAlertAction *OkAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                
+            }];
+            [alert addAction:OkAction];
+            [_vc presentViewController:alert animated:YES completion:nil];
+        }else{
+            UIAlertView * alart = [[UIAlertView alloc]initWithTitle:title message:message delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+            [alart show];
+        }
     }
-    
+    else
+    {
+        // AVAuthorizationStatusAuthorized // 已授权，可使用
+        // AVAuthorizationStatusNotDetermined // 未决定
+        
+        if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera])
+        {
+            UIImagePickerController *picker = [[UIImagePickerController alloc] init];
+            picker.delegate = self;
+            //设置拍照后的图片可被编辑
+            picker.allowsEditing = YES;
+            picker.sourceType = UIImagePickerControllerSourceTypeCamera;
+            
+            [_vc presentViewController:picker animated:YES completion:nil];
+        }else{
+            NSLog(@"照相机暂时不可用");
+        }
+    }
 }
 
 - (void)jhOpenLocalPhoto
